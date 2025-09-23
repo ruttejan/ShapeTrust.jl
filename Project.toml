@@ -1,0 +1,13 @@
+name = "ShapeTrust"
+uuid = "2a4a4a2f-1643-4035-a50a-3192df4d5e36"
+authors = ["Jan Rutterle"]
+version = "0.1.0"
+
+[compat]
+julia = "1.11"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
