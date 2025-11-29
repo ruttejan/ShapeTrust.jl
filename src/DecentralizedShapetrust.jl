@@ -14,6 +14,7 @@ Average of incoming and outgoing trust values.
 function internal_value(i::Int, A::Matrix{Float64})
     finiteA = copy(A)
     finiteA[.!isfinite.(finiteA)] .= 0.0
+    # average of incoming and outgoing trust values
     return 0.5 * (sum(finiteA[i, :]) + sum(finiteA[:, i]))
 end
 
@@ -56,7 +57,7 @@ function external_value(i::Int,
         j_values = [x[1] for x in j_incoming_sorted]
         mj = length(j_values)
         rj = findfirst(x -> x[2] == i, j_incoming_sorted)
-        # if i is not in incoming neighbors of j, skip
+        # if i is not in incoming neighbors of j, skip - should not happen
         if rj === nothing
             continue
         end
@@ -76,6 +77,15 @@ function external_value(i::Int,
     return first_summand + second_summand
 end
 
+"""
+Calculates the Shapetrust values for all players based on the trust matrix A in a decentralized manner.
+Works only for shapleyConcept() with minGame().
+
+# Arguments:
+    - `A::Matrix{Float64}`: The trust matrix.
+# Returns:
+    - `Vector{Float64}`: The Shapetrust values for all players
+"""
 function decentralized_shapetrust(A::Matrix{Float64})
     n = size(A, 1)
     phi = zeros(Float64, n)

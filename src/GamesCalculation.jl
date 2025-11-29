@@ -2,6 +2,16 @@ using Combinatorics
 
 export get_all_games, get_all_external_games, calculate_game, external_game, internal_game
 
+"""
+Internal game calculation function.
+Calculates the internal game value for a given coalition based on the trust matrix.
+
+# Arguments
+- `C::Matrix`: Trust matrix
+- `indices_collection::Vector{Int}`: Indices of players in the coalition
+# Returns
+- `Float64`: Internal game value for the coalition
+"""
 function internal_game(C::Matrix, indices_collection::Vector{Int})
     partial_matrix = C[indices_collection, indices_collection]
     # here we can substitute undefined values with 0
@@ -9,6 +19,18 @@ function internal_game(C::Matrix, indices_collection::Vector{Int})
     return sum(partial_matrix)
 end
 
+"""
+External game calculation function.
+Calculates the external game value for a given coalition based on the trust matrix and game type.
+
+# Arguments
+- `C::Matrix`: Trust matrix
+- `indices_complement::Vector{Int}`: Indices of players not in the coalition
+- `indices_collection::Vector{Int}`: Indices of players in the coalition
+- `game::game_type`: Type of game (minGame or avgGame)
+# Returns
+- `Float64`: External game value for the coalition  
+"""
 function external_game(C::Matrix, indices_complement, indices_collection, game::minGame)
     partial_matrix = C[indices_complement, indices_collection]
     # minimum from incoming edges
@@ -29,6 +51,17 @@ function external_game(C::Matrix, indices_complement, indices_collection, game::
     return sum(avgs)
 end
 
+"""
+Get all games function.
+Generates all possible coalitions and calculates their game values based on the trust matrix and game type.
+
+# Arguments
+- `C::Matrix`: Trust matrix
+- `game::game_type`: Type of game (minGame or avgGame)
+# Returns
+- `games::Dict{Array, Float64}`: Dictionary mapping coalitions to their game values
+- `n::Int`: Number of players
+"""
 function get_all_games(C::Matrix, game::game_type)
     n = size(C, 1)
 
@@ -57,6 +90,16 @@ function get_all_games(C::Matrix, game::game_type)
     return games, n
 end
 
+"""
+Calculate game value for a specific coalition.
+
+# Arguments
+- `coalition::Vector{Int}`: Indices of players in the coalition
+- `C::Matrix`: Trust matrix
+- `game::game_type`: Type of game (minGame or avgGame)
+# Returns
+- `Float64`: Game value for the coalition
+"""
 function calculate_game(coalition::Vector{Int}, C::Matrix, game::game_type)
     if isempty(coalition)
         return 0.0
@@ -74,7 +117,17 @@ function calculate_game(coalition::Vector{Int}, C::Matrix, game::game_type)
     return tmp
 end
 
-# Compute the min and max marginal contribution for minGame
+"""
+Calculate the min and max marginal contribution for minGame
+
+# Arguments
+- `C::Matrix`: Trust matrix
+- `i::Int`: Player index
+- `game::minGame`: Game type
+# Returns
+- `xmini::Float64`: Minimum marginal contribution of player i
+- `xmaxi::Float64`: Maximum marginal contribution of player i
+"""
 function min_max_marginal_contribution_of_i(C::Matrix, i::Int, game::minGame)
     n = size(C)[1]
     Ccopy = copy(C)
@@ -93,7 +146,17 @@ function min_max_marginal_contribution_of_i(C::Matrix, i::Int, game::minGame)
     return xmini, xmaxi
 end
 
-# Compute the min and max marginal contribution for avgGame
+"""
+Calculate the min and max marginal contribution for avgGame
+
+# Arguments
+- `C::Matrix`: Trust matrix
+- `i::Int`: Player index
+- `game::avgGame`: Game type
+# Returns
+- `xmini::Float64`: Minimum marginal contribution of player i
+- `xmaxi::Float64`: Maximum marginal contribution of player i
+"""
 function min_max_marginal_contribution_of_i(C::Matrix, i::Int, game::avgGame)
     n = size(C)[1]
     Ccopy = copy(C)
@@ -121,6 +184,24 @@ end
 # ISSN 0305-0548,
 # https://doi.org/10.1016/j.cor.2008.04.004.
 # (https://www.sciencedirect.com/science/article/pii/S0305054808000804)
+"""
+Calculate the number of samples for approximation defined in Castro et al. 2009
+Javier Castro, Daniel Gómez, Juan Tejada,
+Polynomial calculation of the Shapley value based on sampling,
+Computers & Operations Research,
+Volume 36, Issue 5,
+2009,
+Pages 1726-1730,
+ISSN 0305-0548,
+https://doi.org/10.1016/j.cor.2008.04.004.
+(https://www.sciencedirect.com/science/article/pii/S0305054808000804)
+
+# Arguments
+- `C::Matrix`: Trust matrix
+- `game::game_type`: Game type
+# Returns
+- `num_samples::Int`: Calculated number of samples for approximation
+"""
 function calculate_num_samples(C::Matrix, game::game_type)
     n = size(C)[1]
     xmax = 0

@@ -11,7 +11,28 @@ include("DecentralizedShapetrust.jl")
 export shapetrust, shapleyConcept, owenConcept, minGame, avgGame, get_coalitional_structure
 
 
+"""
+ShapeTrust calculation function.
+Calls appropriate calculation methods based on the provided solution concept, game type and calculation flags.
 
+# Arguments
+- `TrustMatrix::Matrix{Float64}`: Trust matrix representing the trust relationships between agents
+- `sol_concept::solution_concept`: Solution concept to use (shapleyConcept() or owenConcept())
+- `game_type::game_type`: Game type to use (minGame() or avgGame())
+- `approx::Bool=false`: Whether to use approximation for the calculation
+- `decen::Bool=false`: Whether to use decentralized calculation (only for Shapley with Min game)
+# Returns
+- `global_values::Vector{Float64}`: Calculated global trust values for each agent
+
+# Errors
+- If `TrustMatrix` is not square
+- If `TrustMatrix` contains non-numeric values or values other than Inf
+- If `TrustMatrix` has self loops (diagonal elements not Inf)
+- If `game_type` is not recognized
+- If `sol_concept` is not recognized
+- If both `approx` and `decen` are true
+- If `decen` is true but `sol_concept` is not shapleyConcept() or `game_type` is not minGame()
+"""
 function shapetrust(TrustMatrix::Matrix{Float64}
                     ,sol_concept::solution_concept
                     ,game_type::game_type
@@ -29,6 +50,7 @@ function shapetrust(TrustMatrix::Matrix{Float64}
         error("TrustMatrix must contain only numeric values or Inf")
     end
 
+    # number of players
     n = size(TrustMatrix, 1)
 
     # check - no self loops

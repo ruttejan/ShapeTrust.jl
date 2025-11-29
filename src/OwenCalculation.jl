@@ -7,6 +7,17 @@ export exact_owen, approx_owen, get_coalitional_structure, get_all_permutations_
 
 # Function that creates sets that form the coalitional structure
 # All players that received a 0 trust from any other player form a singleton and the rest form one big set
+"""
+Function that creates sets that form the coalitional structure.
+All players that received a 0 trust from any other player form a singleton and the rest form one big set.
+
+# Arguments
+- `C::Matrix`: Trust matrix
+- `n::Integer`: Number of players
+
+# Returns
+- `coal_structure::Vector{Vector{Int}}`: Coalitional structure as a vector of player sets
+"""
 function get_coalitional_structure(C::Matrix, n::Integer)
     coal_structure = []
     rest = []
@@ -21,6 +32,16 @@ function get_coalitional_structure(C::Matrix, n::Integer)
     return coal_structure
 end
 
+"""
+Function that generates all permutations of the coalitional structure blocks,
+including permutations within the big block.
+
+# Arguments
+- `block_perms::Vector{Vector{Vector{Int}}}`: Permutations of coalitional structure blocks
+
+# Returns
+- `final_perms::Vector{Vector{Int}}`: All permutations of players considering the coalitional structure
+"""
 function get_all_permutations_owen(block_perms)
     final_perms = []
 
@@ -46,6 +67,15 @@ function get_all_permutations_owen(block_perms)
     return final_perms
 end
 
+"""
+Exact calculation of Owen values by enumerating all player permutations respecting the coalitional structure.
+
+# Arguments
+- `C::Matrix`: Trust matrix
+- `game::game_type`: Type of game (default is minGame)
+# Returns
+- `owen_values::Vector{Float64}`: Calculated Owen values for each player
+"""
 function exact_owen(C::Matrix, game::game_type=minGame())
     games, n = get_all_games(C, game)
     coal_structure = get_coalitional_structure(C, n)
@@ -75,8 +105,18 @@ function exact_owen(C::Matrix, game::game_type=minGame())
     return owen_values
 end
 
+"""
+Approximate calculation of Owen values using Monte Carlo sampling of player permutations respecting the coalitional structure.
 
-function approx_owen(C::Matrix, game::game_type=minGame(); num_samples::Int=10000000)
+# Arguments
+- `C::Matrix`: Trust matrix
+- `game::game_type`: Type of game (default is minGame)
+- `num_samples::Int`: Number of samples for approximation (default is 1,000,000)
+# Returns
+- `owen_values::Vector{Float64}`: Approximated Owen values for each player
+- `samples_used::Int`: Number of samples used in the approximation
+"""
+function approx_owen(C::Matrix, game::game_type=minGame(); num_samples::Int=1000000)
     n = size(C, 1)
     coal_structure = get_coalitional_structure(C, n)
     peer_sums = zeros(Float64, n)

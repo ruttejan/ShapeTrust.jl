@@ -4,14 +4,30 @@ using Random
 
 export exact_shapley, approx_shapley, get_other_indices, calculate_shapley
 
+"""
+Function that extract player i from all given coalitions.
 
+# Arguments
+- `indices::Vector{Vector{Int}}`: List of coalitions
+- `i::Int`: Player index to exclude
+# Returns
+- `new_indices::Vector{Vector{Int}}`: List of coalitions not containing player i
+"""
 function get_other_indices(indices, i)
     new_indices = copy(indices)
     deleteat!(new_indices, findall(x -> i in x, indices))
     return new_indices
 end
 
-# calculates the shapley value for obtained games
+"""
+Function that calculates the Shapley value for each player given all coalition values.
+
+# Arguments
+- `games::Dict{Vector{Int}, Float64}`: Dictionary mapping coalitions to their values
+- `n::Int`: Number of players
+# Returns
+- `shapley::Vector{Float64}`: Calculated Shapley values for each player
+"""
 function calculate_shapley(games::Dict, n::Int) 
     # initialize shapley values   
     shapley = zeros(n)
@@ -39,8 +55,17 @@ function calculate_shapley(games::Dict, n::Int)
     return shapley
 end
 
-# calculates the shapley value while calculating the games on the fly
-# (this version is slower but saves memory)
+
+"""
+Function that calculates the Shapley value for each player by calculating the game values on the fly.
+
+# Arguments
+- `C::Matrix`: Trust matrix
+- `game::game_type`: Type of game
+
+# Returns
+- `shapley::Vector{Float64}`: Calculated Shapley values for each player
+"""
 function calculate_shapley(C::Matrix, game::game_type)    
     n = size(C, 1)
     shapley = zeros(n)
@@ -70,6 +95,16 @@ function calculate_shapley(C::Matrix, game::game_type)
     return shapley
 end
 
+"""
+Approximate calculation of Shapley values using Monte Carlo sampling of player permutations.
+# Arguments
+- `C::Matrix`: Trust matrix
+- `game::game_type`: Type of game
+- `num_samples::Int`: Number of samples for approximation (default is 1,000,000)
+# Returns
+- `shapley::Vector{Float64}`: Approximated Shapley values for each player
+- `samples_used::Int`: Number of samples used in the approximation
+"""
 function approx_shapley(C::Matrix, game::game_type; num_samples::Int=1000000)
     n = size(C, 1)
     peer_sums = zeros(Float64, n)
@@ -98,6 +133,15 @@ function approx_shapley(C::Matrix, game::game_type; num_samples::Int=1000000)
     return shapley, num_samples
 end
 
+"""
+Exact calculation of Shapley values by enumerating all coalitions.
+
+# Arguments
+- `C::Matrix`: Trust matrix
+- `game::game_type`: Type of game
+# Returns
+- `shapley::Vector{Float64}`: Calculated Shapley values for each player
+"""
 function exact_shapley(C::Matrix, game::game_type)
     n = size(C, 1)
     if n > 15
