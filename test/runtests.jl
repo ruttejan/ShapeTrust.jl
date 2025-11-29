@@ -1,6 +1,11 @@
+# All imports needed for the all test files
 using ShapeTrust
+using Combinatorics
 using Test
 
-@testset "ShapeTrust.jl" begin
-    # Write your tests here.
-end
+# All test files
+include("gamesCalculationTest.jl")
+include("shapleyCalculationTest.jl")
+include("owenCalculationTest.jl")
+include("decentralizedShapetrustTest.jl")
+include("shapetrustTest.jl")
