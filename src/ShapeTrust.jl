@@ -8,7 +8,7 @@ include("OwenCalculation.jl")
 include("DecentralizedShapetrust.jl")
 
 
-export shapetrust, shapleyConcept, owenConcept, minGame, avgGame, get_coalitional_structure
+export shapetrust, shapleyConcept, owenConcept, minGame, avgGame, get_coalitional_structure, gen_matrix
 
 
 """
