@@ -31,7 +31,7 @@ Calculates the external game value for a given coalition based on the trust matr
 # Returns
 - `Float64`: External game value for the coalition  
 """
-function external_game(C::Matrix, indices_complement, indices_collection, game::minGame)
+function external_game(C::Matrix{Float64}, indices_complement::Vector{Int}, indices_collection::Vector{Int}, game::minGame)
     partial_matrix = C[indices_complement, indices_collection]
     # minimum from incoming edges
     mins = minimum.(eachcol(partial_matrix))
@@ -39,7 +39,19 @@ function external_game(C::Matrix, indices_complement, indices_collection, game::
     return sum(mins)
 end
 
-function external_game(C::Matrix, indices_complement, indices_collection, game::avgGame)
+"""
+External game calculation function.
+Calculates the external game value for a given coalition based on the trust matrix and game type.
+
+# Arguments
+- `C::Matrix`: Trust matrix
+- `indices_complement::Vector{Int}`: Indices of players not in the coalition
+- `indices_collection::Vector{Int}`: Indices of players in the coalition
+- `game::game_type`: Type of game (minGame or avgGame)
+# Returns
+- `Float64`: External game value for the coalition  
+"""
+function external_game(C::Matrix{Float64}, indices_complement::Vector{Int}, indices_collection::Vector{Int}, game::avgGame)
     partial_matrix = C[indices_complement, indices_collection]
     # sum of averages from incoming edges
     # get number of elements in each column that are not Inf
@@ -62,7 +74,7 @@ Generates all possible coalitions and calculates their game values based on the 
 - `games::Dict{Array, Float64}`: Dictionary mapping coalitions to their game values
 - `n::Int`: Number of players
 """
-function get_all_games(C::Matrix, game::game_type)
+function get_all_games(C::Matrix{Float64}, game::game_type)
     n = size(C, 1)
 
     tmp = [i for i in 1:n]
@@ -71,7 +83,7 @@ function get_all_games(C::Matrix, game::game_type)
     indices_complement = [setdiff(tmp, x) for x in indices_collection]
 
     m = length(indices_collection)
-    games = Dict{Array, Float64}()
+    games = Dict{Vector{Int}, Float64}()
     games[indices_collection[1]] = 0
     for i in 2:m
 
@@ -100,7 +112,7 @@ Calculate game value for a specific coalition.
 # Returns
 - `Float64`: Game value for the coalition
 """
-function calculate_game(coalition::Vector{Int}, C::Matrix, game::game_type)
+function calculate_game(coalition::Vector{Int}, C::Matrix{Float64}, game::game_type)
     if isempty(coalition)
         return 0.0
     end
@@ -128,7 +140,7 @@ Calculate the min and max marginal contribution for minGame
 - `xmini::Float64`: Minimum marginal contribution of player i
 - `xmaxi::Float64`: Maximum marginal contribution of player i
 """
-function min_max_marginal_contribution_of_i(C::Matrix, i::Int, game::minGame)
+function min_max_marginal_contribution_of_i(C::Matrix{Float64}, i::Int, game::minGame)
     n = size(C)[1]
     Ccopy = copy(C)
     Ccopy[findall(x -> x == Inf, Ccopy)] .= 0
@@ -157,7 +169,7 @@ Calculate the min and max marginal contribution for avgGame
 - `xmini::Float64`: Minimum marginal contribution of player i
 - `xmaxi::Float64`: Maximum marginal contribution of player i
 """
-function min_max_marginal_contribution_of_i(C::Matrix, i::Int, game::avgGame)
+function min_max_marginal_contribution_of_i(C::Matrix{Float64}, i::Int, game::avgGame)
     n = size(C)[1]
     Ccopy = copy(C)
     Ccopy[findall(x -> x == Inf, Ccopy)] .= 0
@@ -202,7 +214,7 @@ https://doi.org/10.1016/j.cor.2008.04.004.
 # Returns
 - `num_samples::Int`: Calculated number of samples for approximation
 """
-function calculate_num_samples(C::Matrix, game::game_type)
+function calculate_num_samples(C::Matrix{Float64}, game::game_type)
     n = size(C)[1]
     xmax = 0
     xmin = Inf

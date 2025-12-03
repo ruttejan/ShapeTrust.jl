@@ -1,6 +1,6 @@
 
 @testset "Test get_other_indices function" begin
-    indices = [[1, 2], [1, 3], [2, 3], [1], [2], [3], []]
+    indices = Vector{Vector{Int}}([[1, 2], [1, 3], [2, 3], [1], [2], [3], []])
     i = 2
     expected_output = [[1, 3], [1], [3], []]
     calculated_output = get_other_indices(indices, i)

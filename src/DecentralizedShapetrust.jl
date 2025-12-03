@@ -90,28 +90,27 @@ function decentralized_shapetrust(A::Matrix{Float64})
     n = size(A, 1)
     phi = zeros(Float64, n)
     for i in 1:n
-        # neighbors_with_i: indices j where A[i,j] is finite
-        neighbors_with_i = findall(x -> isfinite(x), A[i, :])
-        # ensure i itself is included exactly once
-        if !(i in neighbors_with_i)
-            push!(neighbors_with_i, i)
-        end
+        # neighbors_of_i: indices j where A[i,j] is finite
+        neighbors_of_i = findall(x -> isfinite(x), A[i, :])
 
+        neighbors_with_i = copy(neighbors_of_i)
+        # include i itself
+        push!(neighbors_with_i, i)
+
+        # dictionary mapping each neighbor j and i
+        # to a vector of tuples (trust value, node index) of incoming trust values
+        # to each j and i from other nodes
         incoming_values = Dict{Int, Vector{Tuple{Float64, Int}}}()
         for j in neighbors_with_i
             in_idx = findall(x -> isfinite(x), A[:, j])
             incoming_list = Vector{Tuple{Float64, Int}}()
             for p in in_idx
-                # skip self-loop p==j (your original skipped p==j implicitly by findall check),
-                # if you want to prevent including A[j,j] even if finite:
-                if p == j
-                    continue
-                end
                 push!(incoming_list, (A[p, j], p))
             end
             incoming_values[j] = incoming_list
         end
-        neighbors_of_i = neighbors_with_i[neighbors_with_i .!= i]
+
+        # calculate internal and external values for i
         int = internal_value(i, A)
         ext = external_value(i, neighbors_of_i, incoming_values)
 

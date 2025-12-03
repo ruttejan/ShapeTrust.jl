@@ -20,13 +20,13 @@
     @test sh ≈ ow atol=1e-6
 
     # Approximate calculations Shapley vs Owen for minGame
-    sh = shapetrust(A, shapleyConcept(), minGame(), approx=true)
-    ow = shapetrust(A, owenConcept(), minGame(), approx=true)
+    sh = shapetrust(A, shapleyConcept(), minGame(), approx=true, accuracy=1e-7)
+    ow = shapetrust(A, owenConcept(), minGame(), approx=true, accuracy=1e-7)
     @test sh ≈ ow atol=1e-1
 
     # Approximate calculations Shapley vs Owen for avgGame
-    sh = shapetrust(A, shapleyConcept(), avgGame(), approx=true)
-    ow = shapetrust(A, owenConcept(), avgGame(), approx=true)
+    sh = shapetrust(A, shapleyConcept(), avgGame(), approx=true, accuracy=1e-7)
+    ow = shapetrust(A, owenConcept(), avgGame(), approx=true, accuracy=1e-7)
     @test sh ≈ ow atol=1e-1
 end
 
@@ -42,13 +42,13 @@ end
     # Exact calculations Owen for minGame
     ow_exact = shapetrust(A, owenConcept(), minGame())
     # Approximate calculations Owen for minGame
-    ow_approx = shapetrust(A, owenConcept(), minGame(), approx=true)
+    ow_approx = shapetrust(A, owenConcept(), minGame(), approx=true, accuracy=1e-7)
     @test ow_exact ≈ ow_approx atol=1e-1
 
     # Exact calculations Owen for avgGame
     ow_exact = shapetrust(A, owenConcept(), avgGame())
     # Approximate calculations Owen for avgGame
-    ow_approx = shapetrust(A, owenConcept(), avgGame(), approx=true)
+    ow_approx = shapetrust(A, owenConcept(), avgGame(), approx=true, accuracy=1e-7)
     @test ow_exact ≈ ow_approx atol=1e-1
 end
 

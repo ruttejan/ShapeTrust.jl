@@ -21,6 +21,7 @@ Calls appropriate calculation methods based on the provided solution concept, ga
 - `game_type::game_type`: Game type to use (minGame() or avgGame())
 - `approx::Bool=false`: Whether to use approximation for the calculation
 - `decen::Bool=false`: Whether to use decentralized calculation (only for Shapley with Min game)
+- `accuracy::Float64=1e-4`: Desired accuracy for approximation methods (only used if `approx` is true) - defaults to 1e-4 for faster convergence
 # Returns
 - `global_values::Vector{Float64}`: Calculated global trust values for each agent
 
@@ -32,12 +33,32 @@ Calls appropriate calculation methods based on the provided solution concept, ga
 - If `sol_concept` is not recognized
 - If both `approx` and `decen` are true
 - If `decen` is true but `sol_concept` is not shapleyConcept() or `game_type` is not minGame()
+# Examples
+```julia
+using ShapeTrust
+A = [Inf 0.5 0.2;
+     0.3 Inf 0.4; 
+     0.6 0.1 Inf]
+# Exact (Centralized) Shapetrust values
+values = shapetrust(A, shapleyConcept(), minGame())
+# Approximate (Centralized) Shapetrust values
+values_approx = shapetrust(A, shapleyConcept(), minGame(); approx=true)
+# Exact (Decentralized) Shapetrust values - fastest method for Shapetrust
+# Note: Decentralized calculation is only supported for Shapley concept with Min game
+values_decen = shapetrust(A, shapleyConcept(), minGame(); decen=true)
+
+# Owen values and Avg game
+values_owen = shapetrust(A, owenConcept(), avgGame(), approx=true, accuracy=1e-4)
+
+```
+
 """
 function shapetrust(TrustMatrix::Matrix{Float64}
                     ,sol_concept::solution_concept
                     ,game_type::game_type
                     ;approx::Bool=false
                     , decen::Bool=false
+                    , accuracy::Float64=1e-4
                     )
 
     # check - trust matrix dimensions
@@ -110,3 +131,25 @@ function shapetrust(TrustMatrix::Matrix{Float64}
 end
 
 end # End of module ShapeTrust
+
+"""
+Generate a random trust matrix of size n x n with no self loops and with random trust values between 0 and 1, and Inf for no trust. 
+
+# Arguments:
+- `n::Int`: Number of players
+# Returns:
+- `Matrix{Float64}`: Generated trust matrix with random trust values and Inf for no trust
+"""
+function gen_matrix(n::Int)
+    A = zeros(Float64, n, n)
+    for i in 1:n
+        for j in 1:n
+            if i != j
+                A[i, j] = rand() < 0.5 ? rand() : Inf # 50% chance of being Inf
+            else
+                A[i, j] = Inf
+            end
+        end
+    end
+    return A
+end

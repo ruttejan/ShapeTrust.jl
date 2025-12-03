@@ -12,15 +12,15 @@ Function that creates sets that form the coalitional structure.
 All players that received a 0 trust from any other player form a singleton and the rest form one big set.
 
 # Arguments
-- `C::Matrix`: Trust matrix
-- `n::Integer`: Number of players
+- `C::Matrix{Float64}`: Trust matrix
+- `n::Int`: Number of players
 
 # Returns
 - `coal_structure::Vector{Vector{Int}}`: Coalitional structure as a vector of player sets
 """
-function get_coalitional_structure(C::Matrix, n::Integer)
-    coal_structure = []
-    rest = []
+function get_coalitional_structure(C::Matrix{Float64}, n::Int)
+    coal_structure = Vector{Vector{Int}}()
+    rest = Vector{Int}()
     for i in 1:n
         if !isempty(findall(x -> x == 0.0, C[:, i]))
             push!(coal_structure, [i])
@@ -28,7 +28,9 @@ function get_coalitional_structure(C::Matrix, n::Integer)
             push!(rest, i)
         end
     end
-    push!(coal_structure, rest)
+    if !isempty(rest)
+        push!(coal_structure, rest)
+    end
     return coal_structure
 end
 
@@ -42,22 +44,26 @@ including permutations within the big block.
 # Returns
 - `final_perms::Vector{Vector{Int}}`: All permutations of players considering the coalitional structure
 """
-function get_all_permutations_owen(block_perms)
-    final_perms = []
+function get_all_permutations_owen(block_perms::Vector{Vector{Vector{Int}}})
+    final_perms = Vector{Vector{Int}}()
 
     # get all permutations of the big block
-    rest_block_perms = []
+    rest_block_perms = Vector{Vector{Int}}()
     for j in eachindex(block_perms[1])
-        if !(typeof(block_perms[1][j]) == Vector{Int64})
+        if length(block_perms[1][j]) > 1
             rest_block_perms = collect(permutations(block_perms[1][j]))     
         end
+    end
+
+    if isempty(rest_block_perms)
+        return [collect(Iterators.flatten(block_perms[i])) for i in eachindex(block_perms)]
     end
 
 
     # create all final permutations by inserting all big block permutations in the place where the big block was before for each block permutationss
     for i in eachindex(block_perms)
         for j in eachindex(block_perms[i])
-            if !(typeof(block_perms[i][j]) == Vector{Int64})
+            if length(block_perms[i][j]) > 1
                 for r in eachrow(rest_block_perms)
                     push!(final_perms, collect(Iterators.flatten(vcat(block_perms[i][1:j-1], r, block_perms[i][j+1:end]))))
                 end
@@ -71,12 +77,12 @@ end
 Exact calculation of Owen values by enumerating all player permutations respecting the coalitional structure.
 
 # Arguments
-- `C::Matrix`: Trust matrix
+- `C::Matrix{Float64}`: Trust matrix
 - `game::game_type`: Type of game (default is minGame)
 # Returns
 - `owen_values::Vector{Float64}`: Calculated Owen values for each player
 """
-function exact_owen(C::Matrix, game::game_type=minGame())
+function exact_owen(C::Matrix{Float64}, game::game_type=minGame())
     games, n = get_all_games(C, game)
     coal_structure = get_coalitional_structure(C, n)
     block_perms = collect(permutations(coal_structure))
@@ -109,14 +115,14 @@ end
 Approximate calculation of Owen values using Monte Carlo sampling of player permutations respecting the coalitional structure.
 
 # Arguments
-- `C::Matrix`: Trust matrix
+- `C::Matrix{Float64}`: Trust matrix
 - `game::game_type`: Type of game (default is minGame)
 - `num_samples::Int`: Number of samples for approximation (default is 1,000,000)
 # Returns
 - `owen_values::Vector{Float64}`: Approximated Owen values for each player
 - `samples_used::Int`: Number of samples used in the approximation
 """
-function approx_owen(C::Matrix, game::game_type=minGame(); num_samples::Int=1000000)
+function approx_owen(C::Matrix{Float64}, game::game_type; num_samples::Int=1000000, accuracy::Float64=1e-4)
     n = size(C, 1)
     coal_structure = get_coalitional_structure(C, n)
     peer_sums = zeros(Float64, n)
@@ -145,7 +151,7 @@ function approx_owen(C::Matrix, game::game_type=minGame(); num_samples::Int=1000
         end
 
         new_owen_values = peer_sums ./ sample
-        if all(abs.(new_owen_values - owen_values) .< 1e-6)
+        if all(abs.(new_owen_values - owen_values) .< accuracy)
             return new_owen_values, sample
         end
         owen_values = new_owen_values
