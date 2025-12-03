@@ -130,7 +130,6 @@ function shapetrust(TrustMatrix::Matrix{Float64}
     return global_values
 end
 
-end # End of module ShapeTrust
 
 """
 Generate a random trust matrix of size n x n with no self loops and with random trust values between 0 and 1, and Inf for no trust. 
@@ -153,3 +152,5 @@ function gen_matrix(n::Int)
     end
     return A
 end
+
+end # End of module ShapeTrust
