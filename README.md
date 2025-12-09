@@ -1,8 +1,12 @@
 # ShapeTrust
 
-This package aims to implement ShapeTrust algorithm, which is a trust managementalgorithm that takes a trust matrix (local trusts of peers in a decentralized network) on input and returns global trust values for each peer.
+This package aims to implement ShapeTrust algorithm, which is a trust management algorithm that takes a trust matrix (local trusts of peers in a decentralized network) on input and returns global trust values for each peer.
 
-There are multiple ways to calculate the values. There are implemented 2 solution concepts (Shapley and Owen) and two different game definitions that differ in the external part (Min and Avg).
+There are multiple ways to calculate the values that differ in implementation of solution concepts (Shapley and Owen) and game definitions that differ in the external part (Min and Avg).
+
+The main output is the "shapetrust()" function which takes the matrix as an input. Furthermore it takes arguments defining the solution concept, game definition and version of the algorithm (exact, approximate or decentralized calculation). For argument details see the function's docstring.
+
+This package also provides function for generating a random matrix with trust values on interval [0, 1>. The inputs of this function are the number of peers and the level of sparsity of the network. See the docstring for more details.
 
 # Instalation
 
@@ -28,21 +32,6 @@ After you install this package you can use it in source code files like this:
 
 ```
 using ShapeTrust
-
-# generates a matrix with values between 0 and 1
-function gen_matrix(n::Int)
-    A = zeros(Float64, n, n)
-    for i in 1:n
-        for j in 1:n
-            if i != j
-                A[i, j] = rand() < 0.5 ? rand() : Inf # 50% chance of being Inf
-            else
-                A[i, j] = Inf
-            end
-        end
-    end
-    return A
-end
 
 matrix = gen_matrix(14)
 

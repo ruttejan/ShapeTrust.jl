@@ -136,15 +136,21 @@ Generate a random trust matrix of size n x n with no self loops and with random 
 
 # Arguments:
 - `n::Int`: Number of players
+- `sparsity::Float64=0.5`: Sparsity level of the trust matrix (between 0.0 and 1.0). Default is 0.5.
+                        1.0 means all players trust each other (except self loops), 0.0 means no trust between any players.
 # Returns:
 - `Matrix{Float64}`: Generated trust matrix with random trust values and Inf for no trust
 """
-function gen_matrix(n::Int)
+function gen_matrix(n::Int, sparsity::Float64=0.5)
+    if sparsity < 0.0 || sparsity > 1.0
+        error("Sparsity must be between 0.0 and 1.0")
+    end
+
     A = zeros(Float64, n, n)
     for i in 1:n
         for j in 1:n
             if i != j
-                A[i, j] = rand() < 0.5 ? rand() : Inf # 50% chance of being Inf
+                A[i, j] = rand() < sparsity ? rand() : Inf # 50% chance of being Inf
             else
                 A[i, j] = Inf
             end
