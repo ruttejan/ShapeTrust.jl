@@ -102,6 +102,7 @@ function shapetrust(TrustMatrix::Matrix{Float64}
             error("Decentralized calculation is only supported for Shapley concept with Min game")
         end
         global_values = decentralized_shapetrust(TrustMatrix)
+        return global_values
     end
 
     # centralized calculation
